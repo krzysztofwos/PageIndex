@@ -156,6 +156,12 @@ class PageIndexClient:
 
     def _save_doc(self, doc_id: str):
         doc = self.documents[doc_id].copy()
+        # Store path relative to workspace for portability
+        if self.workspace and doc.get('path'):
+            try:
+                doc['path'] = os.path.relpath(doc['path'], self.workspace)
+            except ValueError:
+                pass  # Different drive on Windows; keep absolute
         # Strip text from structure nodes — redundant with pages (PDF only)
         if doc.get('structure') and doc.get('type') == 'pdf':
             doc['structure'] = remove_fields(doc['structure'], fields=['text'])
